@@ -1,19 +1,20 @@
 name: Model Training CICD
+
 permissions:
   id-token: write
   contents: write
- 
+
 on:
   - push
 
 jobs:
   run:
-    runs-on:
-      - ubuntu-latest
-   
+    runs-on: ubuntu-latest
+
     steps:
       - uses: iterative/setup-cml@v1
       - uses: actions/checkout@v3
+
       - name: Train model
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -21,15 +22,11 @@ jobs:
           pip install -r requirements.txt
           python train_model.py
 
-          echo "## 📊 Model Scores" > report.md
+          echo "## Model Scores" > report.md
           cat scores.txt >> report.md
 
-          echo "## 📈 Model Visuals" >> report.md
+          echo "## Model Visuals" >> report.md
+          echo "![Confusion Matrix](./ConfusionMatrix.png)" >> report.md
+          echo "![Feature Importance](./FeatureImportance.png)" >> report.md
 
-          # Publish images
-          cml publish ConfusionMatrix.png --md >> report.md
-          cml publish FeatureImportance.png --md >> report.md
-
-          # Post comment
           cml comment create report.md
-
